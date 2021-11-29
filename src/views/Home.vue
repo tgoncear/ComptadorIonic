@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header :translucent="true">
-      <ion-toolbar>
+      <ion-toolbar color="primary">
         <ion-title>Time Fighter</ion-title>
         <ion-buttons slot="primary">
           <ion-button @click="info" color="primary" fill="solid">
@@ -16,14 +16,14 @@
       <ion-header class="ion-no-border ion-padding" >
         <ion-grid>
           <ion-row>
-            <ion-col class="ion-text-start"><div>Your Score: {{score}}</div></ion-col>
+            <ion-col id="score" class="ion-text-start"><div>Your Score: {{score}}</div></ion-col>
             <ion-col class="ion-text-end"><div>Time Left: {{timeLeft}}</div></ion-col>
           </ion-row>
         </ion-grid>
       </ion-header>
     
       <div id="container">
-        <ion-button @click="tap" color="primary" fill="solid">TAPME</ion-button>
+        <ion-button id="tapMeButton" @click="tap" color="primary" fill="solid">TAPME</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -44,7 +44,7 @@ import {
 import { defineComponent } from 'vue';
 import { informationCircleOutline} from 'ionicons/icons';
 
-const INITIAL_TIME = 5
+const INITIAL_TIME = 60
 export default defineComponent({
   name: 'Home',
   components: {
@@ -83,6 +83,20 @@ export default defineComponent({
     },
   },
   methods:{
+    bounce () {
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('tapMeButton'))
+          .duration(2000)
+          .fromTo('transform', 'scale(2.0)', 'scale(1.0)')
+      animation.play();
+    },
+    blink () {
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('score'))
+          .duration(500)
+          .fromTo('opacity', '0', '1')
+      animation.play();
+    },
     async info(){
         const alert = await alertController
           .create({
@@ -94,6 +108,8 @@ export default defineComponent({
         await alert.present();
         },
     tap () {
+      this.bounce()
+      this.blink()
       this.score++
       if (!this.started) {
         this.counterInterval = setInterval(() => {
