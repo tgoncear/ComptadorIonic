@@ -3,28 +3,48 @@
     <ion-header :translucent="true">
       <ion-toolbar>
         <ion-title>Time Fighter</ion-title>
+        <ion-buttons slot="primary">
+          <ion-button @click="info" color="primary" fill="solid">
+            <ion-icon :icon="InfoIcon"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
+
     </ion-header>
     
     <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Blank</ion-title>
-        </ion-toolbar>
+      <ion-header class="ion-no-border ion-padding" >
+        <ion-grid>
+          <ion-row>
+            <ion-col class="ion-text-start"><div>Your Score: {{score}}</div></ion-col>
+            <ion-col class="ion-text-end"><div>Time Left: {{timeLeft}}</div></ion-col>
+          </ion-row>
+        </ion-grid>
       </ion-header>
     
       <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+        <ion-button @click="tap" color="primary" fill="solid">TAPME</ion-button>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
-<script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+<script>
+import {
+  alertController, createAnimation, IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonPage,
+  IonRow,
+  IonTitle,
+  IonToolbar, toastController, //toastController
+} from '@ionic/vue';
 import { defineComponent } from 'vue';
+import { informationCircleOutline} from 'ionicons/icons';
 
+const INITIAL_TIME = 5
 export default defineComponent({
   name: 'Home',
   components: {
@@ -32,8 +52,68 @@ export default defineComponent({
     IonHeader,
     IonPage,
     IonTitle,
-    IonToolbar
-  }
+    IonToolbar,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol
+  },
+  setup(){
+    return {
+      InfoIcon: informationCircleOutline,
+      started: false,
+    }
+  },
+  data(){
+    return{
+      score: 0,
+      timeLeft: INITIAL_TIME
+    }
+
+  },
+  watch: {
+    timeLeft: function (newTimeLeft) {
+      if (newTimeLeft <= 0) {
+        this.started = false
+        this.timeLeft = INITIAL_TIME
+        clearInterval(this.counterInterval)
+        this.showResult()
+        this.score = 0
+      }
+    },
+  },
+  methods:{
+    async info(){
+        const alert = await alertController
+          .create({
+            header: 'Time Fighter 1.0',
+            subHeader: 'Creat per Tudor Goncear',
+            message: 'Podeu trovar el codi font a <a href="https://github.com/tgoncear/ComptadorIonic">https://github.com/tgoncear/ComptadorIonic</a>',
+            buttons: ['OK']
+          });
+        await alert.present();
+        },
+    tap () {
+      this.score++
+      if (!this.started) {
+        this.counterInterval = setInterval(() => {
+          this.timeLeft--
+        },1000)
+        this.started = true
+      }
+    },
+    async showResult() {
+      // TOAST
+      const toast = await toastController.create({
+        color: 'dark',
+        duration: 2000,
+        message: `Time's Up. Your Score was ${this.score}`,
+        showCloseButton: true
+      });
+      await toast.present();
+    },
+
+  },
 });
 </script>
 
